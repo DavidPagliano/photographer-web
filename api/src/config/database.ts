@@ -1,5 +1,8 @@
 import mongoose from "mongoose";
 import { config } from "./config";
+import budget from "../models/budget";
+import client from "../models/client";
+import event from "../models/event";
 import project from "../models/project";
 
 export const connectDB = async () => {
@@ -18,16 +21,22 @@ export const connectDB = async () => {
         const names = collections?.map(c => c.name) || [];
 
         const expected = [
-            'projects'
+            "projects",
+            "clients",
+            "budgets",
+            "events"
         ];
 
         const missing = expected.filter(name => !names.includes(name));
 
         /* ---- Crear colecciones que no existan ---- */
         if (missing.length > 0) {
-            console.log(`🚧 Creando: ${missing.join(', ')}`);
+            console.log(`🚧 Creando: ${missing.join(", ")}`);
 
-            if (missing.includes('projects')) await project.init();
+            if (missing.includes("projects")) await project.init();
+            if (missing.includes("clients")) await client.init();
+            if (missing.includes("budgets")) await budget.init();
+            if (missing.includes("events")) await event.init();
         } else {
             console.log(`✅ Todas las colecciones ya existen en ${dbName}`);
         }
@@ -50,13 +59,13 @@ export const connectDB = async () => {
 
             collectionStatus.push({
                 Colección: name,
-                Existe: exists ? '✅ Sí' : '❌ No',
+                Existe: exists ? "✅ Sí" : "❌ No",
                 Estado: exists
                     ? count > 0
-                        ? '✅ Con datos'
-                        : '📭 Vacía'
-                    : '—',
-                Registros: exists ? count : '—'
+                        ? "✅ Con datos"
+                        : "📭 Vacía"
+                    : "—",
+                Registros: exists ? count : "—"
             });
         }
 
@@ -67,4 +76,4 @@ export const connectDB = async () => {
     } catch (error) {
         throw error;
     }
-}
+};

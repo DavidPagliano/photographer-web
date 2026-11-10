@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -15,14 +16,13 @@ import SearchIcon from '@mui/icons-material/Search';
 import AddPhotoAlternateOutlinedIcon from '@mui/icons-material/AddPhotoAlternateOutlined';
 import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteOutlined';
 import ProjectCard from '../components/ProjectCard';
-import type { IProject, PageView } from '../types';
+import type { IProject } from '../types';
 
 interface ProjectsPageProps {
   projects: IProject[];
   loading: boolean;
   totalPhotosCount: number;
   onOpenGallery: (project: IProject, initialIndex?: number) => void;
-  onNavigate: (page: PageView) => void;
 }
 
 const ProjectsPage = ({
@@ -30,8 +30,8 @@ const ProjectsPage = ({
   loading,
   totalPhotosCount,
   onOpenGallery,
-  onNavigate,
 }: ProjectsPageProps) => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   const filteredProjects = useMemo(() => {
@@ -45,11 +45,11 @@ const ProjectsPage = ({
   }, [projects, searchTerm]);
 
   const handleGoToQuote = () => {
-    onNavigate('home');
+    navigate('/');
     setTimeout(() => {
       const el = document.getElementById('presupuesto-section');
       if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+    }, 120);
   };
 
   return (
@@ -103,7 +103,7 @@ const ProjectsPage = ({
                 color="primary"
                 size="small"
                 startIcon={<AddPhotoAlternateOutlinedIcon />}
-                onClick={() => onNavigate('dashboard')}
+                onClick={() => navigate('/private/dashboard')}
               >
                 Subir Fotos (Dashboard)
               </Button>
@@ -178,7 +178,7 @@ const ProjectsPage = ({
             <Button
               variant="contained"
               color="primary"
-              onClick={() => onNavigate('dashboard')}
+              onClick={() => navigate('/private/dashboard')}
             >
               Ir al Dashboard a Subir Fotos
             </Button>

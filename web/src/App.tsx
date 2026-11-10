@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { Box, CssBaseline, ThemeProvider } from '@mui/material';
 import theme from './config/theme';
 import Navbar from './components/Navbar';
@@ -7,9 +8,13 @@ import ProjectGalleryModal from './components/ProjectGalleryModal';
 import HomePage from './pages/HomePage';
 import ProjectsPage from './pages/ProjectsPage';
 import DashboardPage from './pages/DashboardPage';
+import BudgetListPage from './pages/BudgetListPage';
+import BudgetProcessDetailPage from './pages/BudgetProcessDetailPage';
+import ClientsDirectoryPage from './pages/ClientsDirectoryPage';
+import ManageProjectsPage from './pages/ManageProjectsPage';
 import { useProjects } from './hooks/useProjects';
 import { useProposals } from './hooks/useProposals';
-import type { IProject, PageView } from './types';
+import type { IProject } from './types';
 
 interface GalleryModalState {
   open: boolean;
@@ -17,8 +22,11 @@ interface GalleryModalState {
   initialIndex: number;
 }
 
+const PublicRouteLayout = () => <Outlet />;
+
+const PrivateRouteLayout = () => <Outlet />;
+
 function App() {
-  const [currentPage, setCurrentPage] = useState<PageView>('home');
   const [galleryModal, setGalleryModal] = useState<GalleryModalState>({
     open: false,
     project: null,
@@ -37,12 +45,21 @@ function App() {
 
   const {
     proposals,
+    events,
     clients,
     proposalsCount,
+    eventsCount,
     clientsCount,
     submitProposal,
-    changeProposalStatus,
+    updateProposal,
     removeProposal,
+    advanceToEvent,
+    addEventItem,
+    removeEventItem,
+    toggleItemDelivered,
+    registerDeposit,
+    setEventStage,
+    saveEventDelivery,
   } = useProposals();
 
   const handleOpenGallery = (project: IProject, initialIndex = 0) => {
@@ -60,76 +77,136 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        sx={{
-          minHeight: '100svh',
-          display: 'flex',
-          flexDirection: 'column',
-          bgcolor: 'background.default',
-        }}
-      >
-        <Navbar
-          currentPage={currentPage}
-          onNavigate={setCurrentPage}
-          projectsCount={projectsCount}
-          proposalsCount={proposalsCount}
-        />
+      <BrowserRouter>
+        <Box
+          sx={{
+            minHeight: '100svh',
+            display: 'flex',
+            flexDirection: 'column',
+            bgcolor: 'background.default',
+          }}
+        >
+          <Navbar />
 
-        <Box component="main" sx={{ flexGrow: 1 }}>
-          {currentPage === 'home' && (
-            <HomePage
-              projects={projects}
-              proposals={proposals}
-              onNavigate={setCurrentPage}
-              onOpenGallery={handleOpenGallery}
-              onSubmitProposal={submitProposal}
-            />
-          )}
+          <Box component="main" sx={{ flexGrow: 1 }}>
+            <Routes>
+              {/* ==================== RUTAS PÚBLICAS ==================== */}
+              <Route element={<PublicRouteLayout />}>
+                <Route
+                  path="/"
+                  element={
+                    <HomePage
+                      projects={projects}
+                      proposals={proposals}
+                      onOpenGallery={handleOpenGallery}
+                      onSubmitProposal={submitProposal}
+                    />
+                  }
+                />
+                <Route
+                  path="/projects"
+                  element={
+                    <ProjectsPage
+                      projects={projects}
+                      loading={loading}
+                      totalPhotosCount={totalPhotosCount}
+                      onOpenGallery={handleOpenGallery}
+                    />
+                  }
+                />
+              </Route>
 
-          {currentPage === 'projects' && (
-            <ProjectsPage
-              projects={projects}
-              loading={loading}
-              totalPhotosCount={totalPhotosCount}
-              onOpenGallery={handleOpenGallery}
-              onNavigate={setCurrentPage}
-            />
-          )}
+              {/* ==================== RUTAS PRIVADAS ==================== */}
+              <Route path="/private" element={<PrivateRouteLayout />}>
+                <Route
+                  index
+                  element={<Navigate to="/private/dashboard" replace />}
+                />
+                <Route
+                  path="dashboard"
+                  element={
+                    <DashboardPage
+                      projects={projects}
+                      proposals={proposals}
+                      events={events}
+                      projectsCount={projectsCount}
+                      totalPhotosCount={totalPhotosCount}
+                      proposalsCount={proposalsCount}
+                      eventsCount={eventsCount}
+                      clientsCount={clientsCount}
+                      onRemoveProposal={removeProposal}
+                      onOpenGallery={handleOpenGallery}
+                    />
+                  }
+                />
+                <Route
+                  path="projects"
+                  element={
+                    <ManageProjectsPage
+                      projects={projects}
+                      projectsCount={projectsCount}
+                      totalPhotosCount={totalPhotosCount}
+                      onAddProject={addProject}
+                      onAddPhotosToProject={addPhotosToProject}
+                      onRemoveProject={removeProject}
+                      onOpenGallery={handleOpenGallery}
+                    />
+                  }
+                />
+                <Route
+                  path="clients"
+                  element={<ClientsDirectoryPage clients={clients} />}
+                />
+                <Route
+                  path="processes"
+                  element={
+                    <BudgetListPage
+                      proposals={proposals}
+                      events={events}
+                      onSubmitProposal={submitProposal}
+                      onRemoveProposal={removeProposal}
+                    />
+                  }
+                />
+                <Route
+                  path="processes/:proposalId"
+                  element={
+                    <BudgetProcessDetailPage
+                      proposals={proposals}
+                      events={events}
+                      onUpdateProposal={updateProposal}
+                      onRemoveProposal={removeProposal}
+                      onAdvanceToEvent={advanceToEvent}
+                      onAddEventItem={addEventItem}
+                      onRemoveEventItem={removeEventItem}
+                      onToggleItemDelivered={toggleItemDelivered}
+                      onRegisterDeposit={registerDeposit}
+                      onSetEventStage={setEventStage}
+                      onSaveEventDelivery={saveEventDelivery}
+                    />
+                  }
+                />
+              </Route>
 
-          {currentPage === 'dashboard' && (
-            <DashboardPage
-              projects={projects}
-              proposals={proposals}
-              clients={clients}
-              projectsCount={projectsCount}
-              totalPhotosCount={totalPhotosCount}
-              proposalsCount={proposalsCount}
-              clientsCount={clientsCount}
-              onAddProject={addProject}
-              onAddPhotosToProject={addPhotosToProject}
-              onRemoveProject={removeProject}
-              onChangeProposalStatus={changeProposalStatus}
-              onRemoveProposal={removeProposal}
-              onOpenGallery={handleOpenGallery}
-              onNavigate={setCurrentPage}
-            />
-          )}
+              {/* Redirección por defecto */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Box>
+
+          <Footer />
+
+          {/* Modal de Galería de Fotos para la Parte Pública */}
+          <ProjectGalleryModal
+            key={`${galleryModal.project?.projectId || 'empty'}-${galleryModal.initialIndex}`}
+            open={galleryModal.open}
+            project={galleryModal.project}
+            initialIndex={galleryModal.initialIndex}
+            onClose={handleCloseGallery}
+          />
         </Box>
-
-        <Footer onNavigate={setCurrentPage} />
-
-        {/* Modal de Galería de Fotos para la Parte Pública */}
-        <ProjectGalleryModal
-          key={`${galleryModal.project?.projectId || 'empty'}-${galleryModal.initialIndex}`}
-          open={galleryModal.open}
-          project={galleryModal.project}
-          initialIndex={galleryModal.initialIndex}
-          onClose={handleCloseGallery}
-        />
-      </Box>
+      </BrowserRouter>
     </ThemeProvider>
   );
 }
 
 export default App;
-

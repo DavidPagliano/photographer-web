@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -20,12 +21,7 @@ import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined';
 import firmaImg from '../assets/firma.jpeg';
 import ProjectCard from '../components/ProjectCard';
 import ProposalForm from '../components/ProposalForm';
-import type {
-  IProject,
-  IProposal,
-  PageView,
-  ProposalFormInput,
-} from '../types';
+import type { IProject, IProposal, ProposalFormInput } from '../types';
 
 interface ServiceItem {
   icon: ReactNode;
@@ -57,7 +53,6 @@ const SERVICES: ServiceItem[] = [
 interface HomePageProps {
   projects: IProject[];
   proposals: IProposal[];
-  onNavigate: (page: PageView) => void;
   onOpenGallery: (project: IProject, initialIndex?: number) => void;
   onSubmitProposal: (formData: ProposalFormInput) => IProposal;
 }
@@ -65,10 +60,10 @@ interface HomePageProps {
 const HomePage = ({
   projects,
   proposals,
-  onNavigate,
   onOpenGallery,
   onSubmitProposal,
 }: HomePageProps) => {
+  const navigate = useNavigate();
   const featuredProjects = projects.slice(0, 3);
 
   const scrollToProposalForm = () => {
@@ -133,7 +128,7 @@ const HomePage = ({
                 color="primary"
                 size="large"
                 startIcon={<PhotoLibraryOutlinedIcon />}
-                onClick={() => onNavigate('projects')}
+                onClick={() => navigate('/projects')}
               >
                 Explorar Proyectos ({projects.length})
               </Button>
@@ -153,7 +148,7 @@ const HomePage = ({
                 color="secondary"
                 size="large"
                 startIcon={<DashboardCustomizeOutlinedIcon />}
-                onClick={() => onNavigate('dashboard')}
+                onClick={() => navigate('/private/dashboard')}
                 sx={{
                   borderColor: 'secondary.dark',
                   color: 'text.primary',
@@ -238,7 +233,7 @@ const HomePage = ({
           <Button
             variant="outlined"
             color="primary"
-            onClick={() => onNavigate('projects')}
+            onClick={() => navigate('/projects')}
           >
             Ver Todos los Proyectos ({projects.length})
           </Button>

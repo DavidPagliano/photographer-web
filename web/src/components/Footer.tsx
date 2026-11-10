@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -8,19 +9,16 @@ import {
   Typography,
 } from '@mui/material';
 import firmaImg from '../assets/firma.jpeg';
-import type { PageView } from '../types';
 
-interface FooterProps {
-  onNavigate: (page: PageView) => void;
-}
+const Footer = () => {
+  const navigate = useNavigate();
 
-const Footer = ({ onNavigate }: FooterProps) => {
   const handleQuoteScroll = () => {
-    onNavigate('home');
+    navigate('/');
     setTimeout(() => {
       const el = document.getElementById('presupuesto-section');
       if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+    }, 120);
   };
 
   return (
@@ -65,7 +63,7 @@ const Footer = ({ onNavigate }: FooterProps) => {
                 color="inherit"
                 size="small"
                 sx={{ p: 0, minWidth: 0 }}
-                onClick={() => onNavigate('home')}
+                onClick={() => navigate('/')}
               >
                 Inicio
               </Button>
@@ -73,7 +71,7 @@ const Footer = ({ onNavigate }: FooterProps) => {
                 color="inherit"
                 size="small"
                 sx={{ p: 0, minWidth: 0 }}
-                onClick={() => onNavigate('projects')}
+                onClick={() => navigate('/projects')}
               >
                 Galería de Proyectos
               </Button>
@@ -89,9 +87,17 @@ const Footer = ({ onNavigate }: FooterProps) => {
                 color="inherit"
                 size="small"
                 sx={{ p: 0, minWidth: 0 }}
-                onClick={() => onNavigate('dashboard')}
+                onClick={() => navigate('/private/dashboard')}
               >
                 Acceso Privado (Dashboard)
+              </Button>
+              <Button
+                color="inherit"
+                size="small"
+                sx={{ p: 0, minWidth: 0 }}
+                onClick={() => navigate('/private/processes')}
+              >
+                Presupuestos y Procesos
               </Button>
             </Stack>
           </Grid>
